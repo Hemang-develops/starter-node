@@ -60,10 +60,10 @@ app.get("/", (req, res) => {
 // Register endpoint
 app.post("/api/register", async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, code } = req.body;
 
     // Validation
-    if (!username || !email || !password) {
+    if (!username || !email || !password || !code) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
@@ -71,6 +71,12 @@ app.post("/api/register", async (req, res) => {
       return res
         .status(400)
         .json({ error: "Password must be at least 6 characters" });
+    }
+
+    if (code.length < 6 && code !== "270319") {
+      return res
+        .status(400)
+        .json({ error: "Incorrect Code.Contact admin for the code" });
     }
 
     // Check if user already exists
