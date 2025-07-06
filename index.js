@@ -3,29 +3,21 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const cors = require('cors');
-const { createProxyMiddleware } = require('http-proxy-middleware');  // <-- add this
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// CORS middleware (you can customize origins if needed)
+// ✅ Allow CORS from all origins or specify yours explicitly
 app.use(cors({
-  preflightContinue: true,
+  origin: '*', // or ['https://c9s2vq-8080.csb.app'] if you want to restrict
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
-app.use('/proxy-api', createProxyMiddleware({
-  target: `http://localhost:${PORT}`, // your backend server
-  changeOrigin: true,
-  pathRewrite: {
-    '^/proxy-api': '', // remove /proxy-api prefix when forwarding
-  },
-  onProxyRes: (proxyRes, req, res) => {
-    // Add CORS headers on the proxied response
-    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
-    proxyRes.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
-  }
-}));
+// ✅ Must handle preflight OPTIONS
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
